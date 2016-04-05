@@ -38,6 +38,7 @@ BEGIN_MESSAGE_MAP(CIncrementSystemBFDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_MESSAGE(WM_MYMESSAGE, OnMyMessage)
+	ON_MESSAGE(WM_MYCLIPMESSAGE, OnMyClipMessage)
 	ON_WM_DESTROY()
 	ON_WM_CHANGECBCHAIN()
 	ON_WM_DRAWCLIPBOARD()
@@ -46,21 +47,9 @@ END_MESSAGE_MAP()
 
 CString szCharUrl;
 CString log;
+char telPhone[12] = {0};
+int telPos = 0;
 
-LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
-{
-	char *str;
-	str = (char *)lParam;
-	CString s(str);
-	log.Format("s %s", s);
-	CLogFile::WriteLog(log);
-	WritePrivateProfileString("Student","CCtelPhone",s.Left(11),"c:\\setting.ini");
-	szCharUrl.Format("http://www.baidu.com/s?wd=%s", s.Left(11));
-	log.Format("p %p", str);
-	CLogFile::WriteLog(log);
-	m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
-	return 1;
-}
 
 typedef BOOL (CALLBACK *LOADHOOK)();
 typedef BOOL (CALLBACK *UNLOADHOOK)();
@@ -69,6 +58,65 @@ HINSTANCE hDLL=NULL;
 LOADHOOK loadhook;
 UNLOADHOOK unloadhook;
 HWND m_hView;
+
+LRESULT CIncrementSystemBFDlg::OnMyClipMessage(WPARAM wParam, LPARAM lParam)
+{
+	char *str;
+	str = (char *)lParam;
+	CString tempStr(str);
+	szCharUrl.Format("http://www.baidu.com/s?wd=%s", tempStr.Left(11));
+	CLogFile::WriteLog(szCharUrl);
+	m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
+
+	m_MyIE.GetDocument();
+	return 1;
+}
+
+LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
+{
+		// lParam&0x800000，如果结果是1，表示是被释放的，也就是抬起的。
+	if ( !(lParam & 0X80000000)) {
+
+		if ((wParam >= 0x30 && wParam <= 0x39)
+		||(wParam >= 0x60 && wParam <= 0x69)){
+			if (telPos == 0){
+				memset(&telPhone, 1, sizeof(telPhone) );
+			}
+			CString tempCode;
+			tempCode.Format("%c", wParam);
+			//log.Format("%d [%s]%c -- [%s]%p", telPos, cc, wParam, telPhone, telPhone);
+			//CLogFile::WriteLog(log);
+			memcpy(&telPhone[telPos], tempCode, 1);
+			telPos++;
+		}
+
+		if (wParam == 0x8){
+			CLogFile::WriteLog("Enter Back");
+				
+			telPos--;
+		}
+		if (wParam == 0x2E){
+			CLogFile::WriteLog("Enter Del");
+			telPos = 0;
+		}
+		
+	}	
+
+	if (telPos >= 11){
+		telPos = 0;
+		telPhone[12] = '\0';
+			
+		log.Format("look : [%s]%p",  telPhone, telPhone);
+		CLogFile::WriteLog(log); 
+
+		szCharUrl.Format("http://www.baidu.com/s?wd=%s", telPhone);
+		log.Format("szCharUrl %s", szCharUrl);
+		CLogFile::WriteLog(log);
+		m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
+	}
+	return 1;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CIncrementSystemBFDlg message handlers
@@ -83,6 +131,7 @@ BOOL CIncrementSystemBFDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
 	SetWindowPos(&wndTopMost, 0, 0, 800, 600, SWP_NOMOVE|SWP_SHOWWINDOW);
+	
 	// TODO: Add extra initialization here
 	m_hView = SetClipboardViewer();
 	hDLL=::LoadLibrary(_T("TelEscrowBJ.dll"));       //加载DLL
@@ -167,10 +216,11 @@ void CIncrementSystemBFDlg::OnDrawClipboard()
 		lpStr = (LPTSTR)GlobalLock(hMem);
 		CLogFile::WriteLog(lpStr);
 
-		PostMessage(WM_MYMESSAGE, 0, (LPARAM)lpStr);
+		PostMessage(WM_MYCLIPMESSAGE, 0, (LPARAM)lpStr);
 
 		GlobalUnlock(hMem);
 		CloseClipboard();
 		break;
 	}
 }
+

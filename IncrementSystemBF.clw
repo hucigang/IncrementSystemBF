@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=SWebpageView
+LastClass=CIncrementSystemBFDlg
 LastTemplate=CHtmlView
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "IncrementSystemBF.h"

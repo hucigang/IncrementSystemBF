@@ -67,20 +67,21 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON    DISCARDABLE     "res\\IncrementSystemBF.ico"
+IDI_ICON1               ICON    DISCARDABLE     "res\\icon1.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_INCREMENTSYSTEMBF_DIALOG DIALOGEX 0, 0, 320, 200
+IDD_INCREMENTSYSTEMBF_DIALOG DIALOGEX 0, 0, 595, 307
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "IncrementSystemBF"
 FONT 9, "ËÎÌו"
 BEGIN
     CONTROL         "",IDC_EXPLORER1,"{8856F961-340A-11D0-A96B-00C04FD705A2}",
-                    WS_TABSTOP,7,7,306,186
+                    WS_TABSTOP,7,7,581,293
 END
 
 
@@ -138,9 +139,9 @@ BEGIN
     IDD_INCREMENTSYSTEMBF_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 313
+        RIGHTMARGIN, 588
         TOPMARGIN, 7
-        BOTTOMMARGIN, 193
+        BOTTOMMARGIN, 300
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -154,7 +155,7 @@ END
 IDD_INCREMENTSYSTEMBF_DIALOG DLGINIT
 BEGIN
     IDC_EXPLORER1, 0x376, 160, 0
-0x0000, 0x0000, 0x004c, 0x0000, 0x2f70, 0x0000, 0x1cd6, 0x0000, 0x0000, 
+0x0000, 0x0000, 0x004c, 0x0000, 0x5a20, 0x0000, 0x2d7a, 0x0000, 0x0000, 
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
 0x0000, 0x0000, 0x004c, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001, 
 0x0000, 0xd0e0, 0x0057, 0x3573, 0x11cf, 0x69ae, 0x0008, 0x2e2b, 0x6212, 

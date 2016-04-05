@@ -11,6 +11,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#import "C:\windows\system32\mshtml.tlb" 
 
 #include <comdef.h>
 #include <map>
@@ -24,6 +25,7 @@ using namespace std;
 #import <mshtml.tlb> no_auto_exclude
 
 #define WM_MYMESSAGE         (WM_USER+100)
+#define WM_MYCLIPMESSAGE         (WM_MYMESSAGE+1)
 
 /////////////////////////////////////////////////////////////////////////////
 // CIncrementSystemBFDlg dialog
@@ -38,9 +40,6 @@ public:
 	//{{AFX_DATA(CIncrementSystemBFDlg)
 	enum { IDD = IDD_INCREMENTSYSTEMBF_DIALOG };
 	CWebBrowser2	m_MyIE;
-	
-	vector<IDispatchPtr> m_vElem;
-	map<IDispatch*, DWORD> m_mapElem2EventCookie;
 	//}}AFX_DATA
 	
 
@@ -60,6 +59,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg LRESULT OnMyMessage(WPARAM w, LPARAM l);
+	afx_msg LRESULT OnMyClipMessage(WPARAM w, LPARAM l);
 	afx_msg void OnDestroy();
 	afx_msg void OnChangeCbChain(HWND hWndRemove, HWND hWndAfter);
 	afx_msg void OnDrawClipboard();
