@@ -7,7 +7,7 @@
 </h3>
 <h3>Command Lines</h3>
 Creating command line "rc.exe /l 0x804 /fo"Debug/IncrementSystemBF.res" /d "_DEBUG" /d "_AFXDLL" "C:\Program Files\Microsoft Visual Studio\MyProjects\IncrementSystemBF\IncrementSystemBF.rc"" 
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1D.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB1.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /Fp"Debug/IncrementSystemBF.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
 "C:\Program Files\Microsoft Visual Studio\MyProjects\IncrementSystemBF\IncrementSystemBF.cpp"
@@ -15,14 +15,14 @@ Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1D.tmp" with cont
 "C:\Program Files\Microsoft Visual Studio\MyProjects\IncrementSystemBF\LogFile.cpp"
 "C:\Program Files\Microsoft Visual Studio\MyProjects\IncrementSystemBF\webbrowser2.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1D.tmp" 
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1E.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB1.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB2.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /Fp"Debug/IncrementSystemBF.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
 "C:\Program Files\Microsoft Visual Studio\MyProjects\IncrementSystemBF\StdAfx.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1E.tmp" 
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1F.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB2.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB3.tmp" with contents
 [
 /nologo /subsystem:windows /incremental:yes /pdb:"Debug/IncrementSystemBF.pdb" /debug /machine:I386 /out:"Debug/IncrementSystemBF.exe" /pdbtype:sept 
 ".\Debug\IncrementSystemBF.obj"
@@ -32,7 +32,7 @@ Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1F.tmp" with cont
 ".\Debug\webbrowser2.obj"
 ".\Debug\IncrementSystemBF.res"
 ]
-Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1F.tmp"
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB3.tmp"
 <h3>Output Window</h3>
 Compiling resources...
 Compiling...
