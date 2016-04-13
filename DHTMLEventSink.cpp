@@ -2,7 +2,6 @@
 //
 
 #include "stdafx.h"
-#include "IncrementSystemBF.h"
 #include "DHTMLEventSink.h"
 
 #include "LogFile.h"

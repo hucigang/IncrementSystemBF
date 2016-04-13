@@ -12,18 +12,22 @@
 	#error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "resource.h"		// main symbols
-
-/////////////////////////////////////////////////////////////////////////////
-// CIncrementSystemBFApp:
-// See IncrementSystemBF.cpp for the implementation of this class
-//
-//const char* g_pStr = _T("Hello World!");
 #define CONFIG_PSTR _T("IncrementSystem.ini")
+
+#define LOGON_HTML_ID _T("Logon")
+#define HTTP1_HTML_ID _T("Http1")
+#define AUTH_HTML_ID _T("Authentication")
+#define QUERYPT_HTML_ID _T("QueryPhoneType")
+#define QUERYPOP_HTML_ID _T("QueryPopup")
+#define QUERYPHONE_HTML_ID _T("QueryPhone")
+#define HB_HTML_ID _T("Heartbeat")
+#define RESETPWD_HTML_ID _T("ResetPassword")
+#define LOGOFF_HTML_ID _T("Logoff")
+
 #define CMAX_LEN 100
 #define UMAX_LEN 500
 
-struct configSystem
+typedef struct configSystem
 {
 	/*
 Title = 精细化助销平台
@@ -62,9 +66,9 @@ ReserveDays = 30
 	int SingleApp;
 	int SaveLog;
 	int ReserveDays;
-};
+} WinBFConfig;
 
-struct configOfficeNetworkBF
+typedef struct configOfficeNetworkBF
 {
 	/*
 	#登录使用的Web地址
@@ -95,16 +99,23 @@ Logoff =http://10.161.18.251:8080/popup/web/sales/GuideRecommend!userQuite.actio
 	char Heartbeat[UMAX_LEN];
 	char ResetPassword[UMAX_LEN];
 	char Logoff[UMAX_LEN];
-};
+} WinBFUrls;
+
+extern WinBFConfig cSystem;
+extern WinBFUrls cUrls;
+
+
+/////////////////////////////////////////////////////////////////////////////
+// CIncrementSystemBFApp:
+// See IncrementSystemBF.cpp for the implementation of this class
+//
+//const char* g_pStr = _T("Hello World!");
 
 class CIncrementSystemBFApp : public CWinApp
 {
 public:
 	CIncrementSystemBFApp();
-	configSystem cSystem;
-	configOfficeNetworkBF cUrls;
 	
-
 	CString ReturnPath();
 	CString setConfig(CString section, CString name);
 private:

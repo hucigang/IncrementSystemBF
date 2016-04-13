@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "IncrementSystemBF.h"
 #include "IncrementSystemBFDlg.h"
+#include "Resource.h"
 
 #include "LogFile.h"
 
@@ -12,6 +13,8 @@
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+WinBFConfig cSystem;
+WinBFUrls cUrls;
 
 /////////////////////////////////////////////////////////////////////////////
 // CIncrementSystemBFApp
@@ -56,11 +59,67 @@ CIncrementSystemBFApp::CIncrementSystemBFApp()
 {
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
-	memset(&cSystem,0,sizeof(configSystem));
-	memset(&cUrls,0,sizeof(configOfficeNetworkBF));
-	cSystem.Beep = atoi(setConfig("System", "Beep"));
+
+//	memset(&cSystem,0,sizeof(configSystem));
+//	memset(&cUrls,0,sizeof(configOfficeNetworkBF));
+	/*
+		char Title[CMAX_LEN];
+	char WorkingTime[CMAX_LEN];
+	int PollingInterval;
+	int Width;
+	int Height;
+	int Timeout;
+	int QueryElapse;
+	int Beep;
+	int ShowClose;
+	int SingleApp;
+	int SaveLog;
+	int ReserveDays;
+	*/
 	strncpy(cSystem.Title,(LPCTSTR)setConfig("System", "Title"),sizeof(cSystem.Title));
-	
+	cSystem.Beep = atoi(setConfig("System", "Beep"));
+	strncpy(cSystem.WorkingTime,(LPCTSTR)setConfig("System", "WorkingTime"),sizeof(cSystem.WorkingTime));
+	cSystem.PollingInterval = atoi(setConfig("System", "PollingInterval"));
+	cSystem.Width = atoi(setConfig("System", "Width"));
+	cSystem.Height = atoi(setConfig("System", "Height"));
+	cSystem.Timeout = atoi(setConfig("System", "Timeout"));
+	cSystem.QueryElapse = atoi(setConfig("System", "QueryElapse"));
+	cSystem.Beep = atoi(setConfig("System", "Beep"));
+	cSystem.ShowClose = atoi(setConfig("System", "ShowClose"));
+	cSystem.SingleApp = atoi(setConfig("System", "SingleApp"));
+	cSystem.SaveLog = atoi(setConfig("System", "SaveLog"));
+	cSystem.ReserveDays = atoi(setConfig("System", "ReserveDays"));
+
+	/*
+	char Logon[UMAX_LEN];
+	char Http1[UMAX_LEN];
+	char Authentication[UMAX_LEN];
+	char QueryPhoneType[UMAX_LEN];
+	char QueryPopup[UMAX_LEN];
+	char QueryPhone[UMAX_LEN];
+	char Heartbeat[UMAX_LEN];
+	char ResetPassword[UMAX_LEN];
+	char Logoff[UMAX_LEN];
+	#define LOGON_HTML_ID _T("Logon")
+#define HTTP1_HTML_ID _T("Http1")
+#define AUTH_HTML_ID _T("Authentication")
+#define QUERYPT_HTML_ID _T("QueryPhoneType")
+#define QUERYPOP_HTML_ID _T("QueryPopup")
+#define QUERYPHONE_HTML_ID _T("QueryPhone")
+#define HB_HTML_ID _T("Heartbeat")
+#define RESETPWD_HTML_ID _T("ResetPassword")
+#define LOGOFF_HTML_ID _T("Logoff")
+	*/
+	strncpy(cUrls.Logon,(LPCTSTR)setConfig("OfficeNetwork", LOGON_HTML_ID),sizeof(cUrls.Logon));
+	strncpy(cUrls.Http1,(LPCTSTR)setConfig("OfficeNetwork", HTTP1_HTML_ID),sizeof(cUrls.Http1));
+	strncpy(cUrls.Authentication,(LPCTSTR)setConfig("OfficeNetwork", AUTH_HTML_ID),sizeof(cUrls.Authentication));
+	strncpy(cUrls.QueryPhoneType,(LPCTSTR)setConfig("OfficeNetwork", QUERYPT_HTML_ID),sizeof(cUrls.QueryPhoneType));
+	strncpy(cUrls.QueryPopup,(LPCTSTR)setConfig("OfficeNetwork", QUERYPOP_HTML_ID),sizeof(cUrls.QueryPopup));
+	strncpy(cUrls.QueryPhone,(LPCTSTR)setConfig("OfficeNetwork", QUERYPHONE_HTML_ID),sizeof(cUrls.QueryPhone));
+	strncpy(cUrls.Heartbeat,(LPCTSTR)setConfig("OfficeNetwork", HB_HTML_ID),sizeof(cUrls.Heartbeat));
+	strncpy(cUrls.ResetPassword,(LPCTSTR)setConfig("OfficeNetwork", RESETPWD_HTML_ID),sizeof(cUrls.ResetPassword));
+	strncpy(cUrls.Logoff,(LPCTSTR)setConfig("OfficeNetwork", LOGOFF_HTML_ID),sizeof(cUrls.Logoff));
+	CLogFile::WriteLog("配置文件加载完成。"); 
 }
 
 /////////////////////////////////////////////////////////////////////////////

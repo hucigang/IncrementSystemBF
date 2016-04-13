@@ -13,6 +13,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CIncrementSystemBFDlg dialog
 
@@ -44,6 +46,7 @@ BEGIN_MESSAGE_MAP(CIncrementSystemBFDlg, CDialog)
 	ON_WM_DESTROY()
 	ON_WM_CHANGECBCHAIN()
 	ON_WM_DRAWCLIPBOARD()
+	ON_WM_ACTIVATE()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -106,7 +109,7 @@ LRESULT CIncrementSystemBFDlg::OnMyClipMessage(WPARAM wParam, LPARAM lParam)
 	szCharUrl.Format("http://www.baidu.com/s?wd=%s", tempStr.Left(11));
 	CLogFile::WriteLog(szCharUrl);
 	
-	m_MyIE.Navigate("C:\\TelEscrowTest.htm", NULL, NULL, NULL, NULL);
+	m_MyIE.Navigate("Y:\\Downloads\\TelEscrowTest.htm", NULL, NULL, NULL, NULL);
 	//m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
 
 	//m_MyIE.GetDocument();
@@ -155,7 +158,7 @@ LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 		
 		log.Format("szCharUrl %s", szCharUrl);
 		CLogFile::WriteLog(log);
-		m_MyIE.Navigate("C:\\TelEscrowTest.htm", NULL, NULL, NULL, NULL);
+		m_MyIE.Navigate("Y:\\Downloads\\TelEscrowTest.htm", NULL, NULL, NULL, NULL);
 		//m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
 	}
 	return 1;
@@ -173,9 +176,11 @@ BOOL CIncrementSystemBFDlg::OnInitDialog()
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
+
+	SetWindowPos(&wndTopMost, 0, 0, cSystem.Width, cSystem.Height, SWP_NOMOVE|SWP_SHOWWINDOW);
+	CenterWindow();
 	
-	SetWindowPos(&wndTopMost, 0, 0, 800, 600, SWP_NOMOVE|SWP_SHOWWINDOW);
-	
+	//::RegisterHotKey(m_hWnd, WM_USER,MOD_ALT, VK_F4);
 	// TODO: Add extra initialization here
 	m_hView = SetClipboardViewer();
 	hDLL=::LoadLibrary(_T("TelEscrowBJ.dll"));       //加载DLL
@@ -363,53 +368,75 @@ void CIncrementSystemBFDlg::OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIAN
 		  hr = pDoc->get_all( &pElemColl );
 		  if ( SUCCEEDED(hr) )//ec
 		  {
-			  
 			CComDispatchDriver spScript; 
 			pDoc->get_Script(&spScript);  
 			CComVariant var(static_cast<IDispatch*>(new CMyEventSink));  
 			spScript.Invoke1(L"SaveCppObject", &var); 
 			  // Obtained element collection.
 			  // ProcessElementCollection( pElemColl );
-			  IDispatch* pElemDisp = NULL;
-			  IHTMLElement* pElem = NULL;
+			IDispatch* pElemDisp = NULL;
+			IHTMLElement* pElem = NULL;
 			 // _variant_t varID(_bstr_t("myID"), VT_BSTR );
 			//  _variant_t varIdx;//( 0, VT_I4 );
 			  
-			  VARIANT vID;
-			  VARIANT vIdx;
+			VARIANT vID;
+			VARIANT vIdx;
 
-			  VariantInit(&vID);
-			  vID.vt=VT_BSTR;
-			  vID.bstrVal=_bstr_t("myid");
+			VariantInit(&vID);
+			vID.vt=VT_BSTR;
+			vID.bstrVal=_bstr_t("myid");
 
-			  VariantInit(&vIdx);
+			VariantInit(&vIdx);
 			  
-			  vIdx.vt=VT_I4;
-			  vIdx.lVal=0;
+			vIdx.vt=VT_I4;
+			vIdx.lVal=0;
 
-			  hr = pElemColl->item( vID, vIdx, &pElemDisp );
-			  if ( SUCCEEDED(hr) )
-			  {
-				  hr = pElemDisp->QueryInterface( IID_IHTMLElement, (void**)&pElem );
-				  if ( SUCCEEDED(hr) )
-				  {
+			hr = pElemColl->item( vID, vIdx, &pElemDisp );
+			if ( SUCCEEDED(hr) && pElemDisp != 0x0)
+			{
+				hr = pElemDisp->QueryInterface( IID_IHTMLElement, (void**)&pElem );
+				if ( SUCCEEDED(hr) )
+				{
 					  // Obtained element with ID of "myID".
-					  BSTR bsHtml;
-					  pElem->get_outerHTML(&bsHtml);
-						CLogFile::WriteLog(bsHtml);
-					  
+					BSTR bsHtml;
+					pElem->get_outerHTML(&bsHtml);
+					CLogFile::WriteLog(bsHtml);
 
-					  ConnectButton1( pElem );
-					  pElem->Release();
-				  }
-			  }
-		  }
+					ConnectButton1( pElem );
+					pElem->Release();	
+				}
+				pElemDisp->Release();
+			}
+			pElemColl->Release();
+		}
 
-			  pElemColl->Release();
-		  }
+	  }
 
           //ProcessDocument( pDocDisp );
-      }
+   }
       pDocDisp->Release();
 
+}
+
+void CIncrementSystemBFDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized) 
+{
+	CDialog::OnActivate(nState, pWndOther, bMinimized);
+	
+	// TODO: Add your message handler code here
+	isActive=nState;
+}
+
+BOOL CIncrementSystemBFDlg::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	
+	if (isActive && WM_SYSKEYDOWN == pMsg->message
+// WM_SYSKEYDOWN  表示ALT键按下
+		&& VK_F4 == pMsg->wParam)
+	{
+		return TRUE;
+	}
+
+	return CDialog::PreTranslateMessage(pMsg);
 }

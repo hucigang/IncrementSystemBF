@@ -21,6 +21,7 @@
 #include <MsHTML.h>
 #include "mshtml.h"
 #include "mshtmdid.h"
+#include "resource.h"
 #include <afxwin.h>
 using namespace std;
 
@@ -30,6 +31,7 @@ using namespace std;
 #define WM_MYMESSAGE         (WM_USER+100)
 #define WM_MYCLIPMESSAGE         (WM_MYMESSAGE+1)
 #define WM_MYCLICKMESSAGE	 (WM_MYMESSAGE+2)
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CIncrementSystemBFDlg dialog
@@ -44,11 +46,14 @@ public:
 	//{{AFX_DATA(CIncrementSystemBFDlg)
 	enum { IDD = IDD_INCREMENTSYSTEMBF_DIALOG };
 	CWebBrowser2	m_MyIE;
+	UINT isActive;
 	//}}AFX_DATA
 	
 
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CIncrementSystemBFDlg)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -65,13 +70,12 @@ protected:
 	afx_msg LRESULT OnMyMessage(WPARAM w, LPARAM l);
 	afx_msg LRESULT OnMyClipMessage(WPARAM w, LPARAM l);
 	afx_msg LRESULT OnMyClickMessage(WPARAM w, LPARAM l);
-	
 	afx_msg void OnDestroy();
 	afx_msg void OnChangeCbChain(HWND hWndRemove, HWND hWndAfter);
 	afx_msg void OnDrawClipboard();
 	afx_msg void OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIANT FAR* URL);
+	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	DECLARE_EVENTSINK_MAP()
-	
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

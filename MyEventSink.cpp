@@ -3,12 +3,10 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "IncrementSystemBF.h"
 #include "MyEventSink.h"
 #include "LogFile.h"
-#include <comdef.h>
-
 #include "IncrementSystemBFDlg.h"
+#include <comdef.h>
 
 #ifdef _DEBUG
 #undef THIS_FILE
