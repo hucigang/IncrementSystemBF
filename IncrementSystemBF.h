@@ -18,12 +18,96 @@
 // CIncrementSystemBFApp:
 // See IncrementSystemBF.cpp for the implementation of this class
 //
+//const char* g_pStr = _T("Hello World!");
+#define CONFIG_PSTR _T("IncrementSystem.ini")
+#define CMAX_LEN 100
+#define UMAX_LEN 500
+
+struct configSystem
+{
+	/*
+Title = 精细化助销平台
+#工作时间(用于向用户提示信息)
+WorkingTime = 8：00-18：30
+#发起心跳查询的时间，单位为秒
+PollingInterval =300
+#主界面的宽度
+Width = 568
+#主界面的高度
+Height = 570
+#登录超时时间，单位为秒
+Timeout = 20
+#查询重新计时的时间，单位为秒
+QueryElapse = 5
+#是否启用声音报警(0:不启用；1:启用)
+Beep = 1
+#是否启用关闭按钮(0:不启用；1:启用)
+ShowClose = 1
+#是否只允许一个应用程序实例运行(0:允许多个；1:只允许一个)
+SingleApp = 1
+#是否保存日志(0:不保存日志；1:保存日志)
+SaveLog = 1
+#日志文件保留时间，单位为天
+ReserveDays = 30
+	*/
+	char Title[CMAX_LEN];
+	char WorkingTime[CMAX_LEN];
+	int PollingInterval;
+	int Width;
+	int Height;
+	int Timeout;
+	int QueryElapse;
+	int Beep;
+	int ShowClose;
+	int SingleApp;
+	int SaveLog;
+	int ReserveDays;
+};
+
+struct configOfficeNetworkBF
+{
+	/*
+	#登录使用的Web地址
+Logon =http://10.161.18.251:8080/popup/LoginService!login.action?
+#登录成功后依次使用的Web地址
+Http1 =http://10.161.18.251:8080/popup/MatchWebFailService.action?
+#验证使用的Web地址
+Authentication =http://10.161.18.251:8080/popup/LoginService!smsAuth.action? 
+#号码类型使用的Web地址
+QueryPhoneType =http://10.161.18.251:8080/popup/web/sales/QueryTelephone!QuerytelType.action?
+#弹窗标识使用的Web地址
+QueryPopup =http://10.161.18.251:8080/popup/web/sales/QueryTelephone!QueryIfAlert.action?
+#自动捕获号码后查询是否有推荐业务使用的Web地址 
+QueryPhone =http://10.161.18.251:8080/popup/web/sales/QueryTelephone.action?
+#心跳查询使用的Web地址
+Heartbeat =http://10.161.18.251:8080/popup/LoginService!onlineChk.action?
+#重置密码使用的Web地址
+ResetPassword =http://10.161.18.251:8080/popup/web/sales/GuideRecommend!resetUserPassword.action?
+#登出使用的Web地址
+Logoff =http://10.161.18.251:8080/popup/web/sales/GuideRecommend!userQuite.action?
+	*/
+	char Logon[UMAX_LEN];
+	char Http1[UMAX_LEN];
+	char Authentication[UMAX_LEN];
+	char QueryPhoneType[UMAX_LEN];
+	char QueryPopup[UMAX_LEN];
+	char QueryPhone[UMAX_LEN];
+	char Heartbeat[UMAX_LEN];
+	char ResetPassword[UMAX_LEN];
+	char Logoff[UMAX_LEN];
+};
 
 class CIncrementSystemBFApp : public CWinApp
 {
 public:
 	CIncrementSystemBFApp();
+	configSystem cSystem;
+	configOfficeNetworkBF cUrls;
+	
 
+	CString ReturnPath();
+	CString setConfig(CString section, CString name);
+private:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CIncrementSystemBFApp)

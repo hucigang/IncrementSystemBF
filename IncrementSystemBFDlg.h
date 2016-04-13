@@ -11,11 +11,14 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#import "C:\windows\system32\mshtml.tlb" 
+//#import "C:\windows\system32\mshtml.tlb" 
 
 #include <comdef.h>
 #include <map>
 #include <vector>
+#include <atlbase.h>
+#include <atlcom.h>
+#include <MsHTML.h>
 #include "mshtml.h"
 #include "mshtmdid.h"
 #include <afxwin.h>
@@ -26,6 +29,7 @@ using namespace std;
 
 #define WM_MYMESSAGE         (WM_USER+100)
 #define WM_MYCLIPMESSAGE         (WM_MYMESSAGE+1)
+#define WM_MYCLICKMESSAGE	 (WM_MYMESSAGE+2)
 
 /////////////////////////////////////////////////////////////////////////////
 // CIncrementSystemBFDlg dialog
@@ -35,7 +39,7 @@ class CIncrementSystemBFDlg : public CDialog
 // Construction
 public:
 	CIncrementSystemBFDlg(CWnd* pParent = NULL);	// standard constructor
-
+	void ConnectButton1(IHTMLElement* pButtonElem);
 // Dialog Data
 	//{{AFX_DATA(CIncrementSystemBFDlg)
 	enum { IDD = IDD_INCREMENTSYSTEMBF_DIALOG };
@@ -60,10 +64,13 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg LRESULT OnMyMessage(WPARAM w, LPARAM l);
 	afx_msg LRESULT OnMyClipMessage(WPARAM w, LPARAM l);
+	afx_msg LRESULT OnMyClickMessage(WPARAM w, LPARAM l);
+	
 	afx_msg void OnDestroy();
 	afx_msg void OnChangeCbChain(HWND hWndRemove, HWND hWndAfter);
 	afx_msg void OnDrawClipboard();
-	
+	afx_msg void OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIANT FAR* URL);
+	DECLARE_EVENTSINK_MAP()
 	
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

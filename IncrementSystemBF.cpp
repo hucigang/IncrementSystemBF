@@ -5,6 +5,8 @@
 #include "IncrementSystemBF.h"
 #include "IncrementSystemBFDlg.h"
 
+#include "LogFile.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -25,10 +27,40 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CIncrementSystemBFApp construction
 
+#define MAX_LENGTH 500
+
+CString CIncrementSystemBFApp::ReturnPath()  
+{   
+   CString    sPath;   
+   GetModuleFileName(NULL,sPath.GetBufferSetLength(MAX_PATH+1),MAX_PATH);
+   sPath.ReleaseBuffer    ();   
+   int    nPos;   
+   nPos=sPath.ReverseFind('\\');   
+   sPath=sPath.Left(nPos);   
+   return    sPath;   
+}
+
+CString CIncrementSystemBFApp::setConfig(CString section, CString name)
+{
+	CString path;
+	path = ReturnPath();
+	CString configFile;
+	configFile.Format("%s\\%s", path, CONFIG_PSTR);
+	CString temp;
+	::GetPrivateProfileString(section,name,"",temp.GetBuffer(MAX_LENGTH),MAX_LENGTH,configFile);
+
+	return temp;
+}
+
 CIncrementSystemBFApp::CIncrementSystemBFApp()
 {
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
+	memset(&cSystem,0,sizeof(configSystem));
+	memset(&cUrls,0,sizeof(configOfficeNetworkBF));
+	cSystem.Beep = atoi(setConfig("System", "Beep"));
+	strncpy(cSystem.Title,(LPCTSTR)setConfig("System", "Title"),sizeof(cSystem.Title));
+	
 }
 
 /////////////////////////////////////////////////////////////////////////////
