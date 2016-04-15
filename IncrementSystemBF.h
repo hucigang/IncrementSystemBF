@@ -19,7 +19,7 @@
 #define AUTH_HTML_ID _T("Authentication")
 #define QUERYPT_HTML_ID _T("QueryPhoneType")
 #define QUERYPOP_HTML_ID _T("QueryPopup")
-#define QUERYPHONE_HTML_ID _T("QueryPhone")
+#define QUERYPHONE_HTML_ID _T("querySerialNumber")
 #define HB_HTML_ID _T("Heartbeat")
 #define RESETPWD_HTML_ID _T("ResetPassword")
 #define LOGOFF_HTML_ID _T("Logoff")

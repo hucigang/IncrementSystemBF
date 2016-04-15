@@ -33,7 +33,7 @@ using namespace std;
 #define WM_MYCLICKMESSAGE	 (WM_MYMESSAGE+2)
 
 
-/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////1860837383728
 // CIncrementSystemBFDlg dialog
 
 class CIncrementSystemBFDlg : public CDialog
@@ -65,7 +65,7 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CIncrementSystemBFDlg)
 	virtual BOOL OnInitDialog();
-	virtual void CIncrementSystemBFDlg::ProcessElementCollection(IHTMLElementCollection* pElemColl, CString id);
+	virtual void ProcessElementCollection(IHTMLElementCollection* pElemColl, CString id);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg LRESULT OnMyMessage(WPARAM w, LPARAM l);

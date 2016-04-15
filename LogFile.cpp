@@ -26,14 +26,21 @@ CString CLogFile::GetFileName()
 
 CString CLogFile::GetFilePath()
 {   
-    CString m_FilePath="C:";
-    GetModuleFileName(NULL,m_FilePath.GetBufferSetLength(MAX_PATH+1),MAX_PATH);
-    m_FilePath.ReleaseBuffer();
-    int m_iPosIndex;
-    m_iPosIndex = m_FilePath.ReverseFind('\\'); 
-    m_FilePath = m_FilePath.Left(m_iPosIndex) + "\\Log";
-	m_FilePath = "Y:\\Downloads\\Log";
-    return m_FilePath;
+	CString    sPath;   
+   GetModuleFileName(NULL,sPath.GetBufferSetLength(MAX_PATH+1),MAX_PATH);
+   sPath.ReleaseBuffer    ();   
+   int    nPos;   
+   nPos=sPath.ReverseFind('\\');   
+   sPath=sPath.Left(nPos); 
+
+    //CString m_FilePath="C:";
+    //GetModuleFileName(NULL,m_FilePath.GetBufferSetLength(MAX_PATH+1),MAX_PATH);
+    //m_FilePath.ReleaseBuffer();
+    //int m_iPosIndex;
+    //m_iPosIndex = m_FilePath.ReverseFind('\\'); 
+    sPath += "\\Log";
+	//m_FilePath = "Y:\\Downloads\\Log";
+    return sPath;
 }
 
 BOOL CLogFile::WriteLog(CString LogText)
@@ -49,7 +56,7 @@ BOOL CLogFile::WriteLog(CString LogText)
         CString m_sCurrentTime = CTime::GetCurrentTime().Format("%Y-%m-%d %X");
 
         //m_sErrorMessage = "*******************" + m_sCurrentTime + "*******************" + "\r\n";
-        m_sErrorMessage = LogText + "\r\n";
+        m_sErrorMessage = "["+m_sCurrentTime+"]"+LogText + "\r\n";
         //m_sErrorMessage += "*******************" + m_sCurrentTime + "*******************" + "\r\n";
         if(!m_FileFind.FindFile(m_sFilePath))
         {

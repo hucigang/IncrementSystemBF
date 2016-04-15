@@ -6,6 +6,11 @@
 #include "IncrementSystemBFDlg.h"
 #include "LogFile.h"
 #include "DHTMLEventSink.h"
+#include <Wininet.h>  
+#include <atlbase.h>
+#include <atlcom.h>
+              
+#pragma comment(lib, "Wininet.lib")  
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -65,6 +70,133 @@ HINSTANCE hDLL=NULL;
 LOADHOOK loadhook;
 UNLOADHOOK unloadhook;
 HWND m_hView;
+
+
+BOOL HttpRequestGet(IN const CString& sHomeUrl, IN const LONG nPort, IN const CString& sPageUrl, OUT CString &sResult)  
+{   
+    HINTERNET hInternet;  
+    DWORD nGetSize;  
+    LPSTR lpszData = NULL;  
+    DWORD dwSize = 0;  
+    DWORD dwDownloaded = 0;  
+	/*
+   User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko*/
+    hInternet = InternetOpen(_T("User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko"),  
+        INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);  
+    if (NULL == hInternet)  
+    {  
+        sResult.Format(_T("Open link error. ErrCode=[%u]"), GetLastError());  
+        InternetCloseHandle(hInternet);  
+        return FALSE;  
+    }  
+    // 打开http session     
+    HINTERNET hSession = InternetConnect(hInternet, sHomeUrl,  
+        (INTERNET_PORT)nPort, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);  
+  
+    CString sHtmlHeader; 
+	
+	
+	/*
+   Accept: text/html, application/xhtml+xml, image/jxr, *\/*
+   Accept-Encoding: gzip, deflate
+   Accept-Language: zh-Hans-CN, zh-Hans; q=0.5
+   
+   Connection: Keep-Alive
+   Host: 132.77.220.134:8081
+	*/
+    sHtmlHeader = _T("Accept: text\/html, application\/xhtml+xml, image/jxr, *\/*\r\n");  
+    sHtmlHeader += _T("Accept-Encoding: gzip, deflate\r\n");  
+    sHtmlHeader += _T("Accept-Language: zh-Hans-CN, zh-Hans; q=0.5\r\n");  
+	sHtmlHeader += _T("Connection: Keep-Alive\r\n");
+	CString sHeadConnection;
+	sHeadConnection.Format(_T("Host: %s:%ld"), sHomeUrl, nPort);
+	sHtmlHeader += sHeadConnection;
+  
+    DWORD pszResponse = 1024*1024; //1M
+	auto_ptr<char> szBuf(new char[pszResponse]);
+	memset(szBuf.get(),0,pszResponse);
+  
+    HINTERNET hRequest = HttpOpenRequest(hSession, _T("GET"), sPageUrl,  
+        _T("HTTP/1.0"), _T(""), 0, INTERNET_FLAG_NO_AUTH |  
+        INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_NO_CACHE_WRITE, 0);  
+  
+    int iTimeout = 10000;  
+    InternetSetOption(hRequest, INTERNET_OPTION_CONNECT_TIMEOUT,  
+        &iTimeout, sizeof(iTimeout));  
+    InternetSetOption(hRequest, INTERNET_OPTION_SEND_TIMEOUT,  
+        &iTimeout, sizeof(iTimeout));  
+    InternetSetOption(hRequest, INTERNET_OPTION_RECEIVE_TIMEOUT,  
+        &iTimeout, sizeof(iTimeout));  
+    InternetSetOption(hRequest, INTERNET_OPTION_DATA_SEND_TIMEOUT,  
+        &iTimeout, sizeof(iTimeout));  
+    InternetSetOption(hRequest, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT,  
+        &iTimeout, sizeof(iTimeout));  
+    InternetSetOption(hRequest, INTERNET_OPTION_LISTEN_TIMEOUT,  
+        &iTimeout, sizeof(iTimeout));  
+  
+    BOOL bResult = HttpSendRequest(hRequest, sHtmlHeader,  
+        sHtmlHeader.GetLength(), _T(""), 0);  
+    sHtmlHeader.ReleaseBuffer();  
+  
+    if (FALSE == bResult)  
+    {  
+        sResult.Format(_T("Send request error. ErrCode=[%u]"), GetLastError());  
+  
+        InternetCloseHandle(hRequest);  
+        InternetCloseHandle(hSession);  
+        InternetCloseHandle(hInternet);  
+  
+        //delete[]pszResponse;  
+  
+        return FALSE;  
+    }  
+  
+    nGetSize = 0;  
+    // 循环读取数据      
+    do  
+    { // 检查在http response 还有多少字节可以读取   18693837493 
+        if (!InternetQueryDataAvailable(hRequest, &dwSize, 0, 0))  
+        {  
+            break;  
+        }  
+        // 读取数据    
+        //if (FALSE == InternetReadFile(hRequest,  
+         //   (LPVOID)&pszResponse[nGetSize], dwSize, &dwDownloaded))  
+		if (FALSE == InternetReadFile(hRequest,  
+           szBuf.get(), dwSize, &dwDownloaded))  
+        {  
+           
+        }  else{
+			 nGetSize += dwSize;  
+            if (dwDownloaded == 0 || nGetSize > 1024 * 1024)  
+            {// 没有剩余数据    
+                break;  
+            }  
+		}
+    } while (FALSE);  
+  
+    //pszResponse[nGetSize] = 0;  
+	sResult.Format("%s", szBuf.get());
+    //sResult = ::CA2T(pszResponse);  
+  
+    InternetCloseHandle(hRequest);  
+    InternetCloseHandle(hSession);  
+    InternetCloseHandle(hInternet);  
+  
+	szBuf.release();
+//    delete[]pszResponse;  
+  
+
+    if (sResult.Find(_T("<html>")) != -1)  
+    {  
+        sResult = _T("An unknown error occurred.");  
+        return FALSE;  
+    }  
+  
+    return TRUE;  
+}  
+
+
 bool bRun;
 int PaintTime=0;;
 struct scale
@@ -123,6 +255,29 @@ long lParam // application-defined value
 	return TRUE; 
 } 
 
+BOOL checkPhoneIsUnicom(CString phone)
+{
+	//strcmp(s1, s2)==0
+	// 130，131，132，155，156，185，186，145，176
+	if (phone.GetLength() < 11){
+		return false;
+	}
+	if (strcmp(phone.Left(3), "130") == 0
+		|| strcmp(phone.Left(3), "131") == 0
+		|| strcmp(phone.Left(3), "132") == 0
+		|| strcmp(phone.Left(3), "155") == 0
+		|| strcmp(phone.Left(3), "156") == 0
+		|| strcmp(phone.Left(3), "185") == 0
+		|| strcmp(phone.Left(3), "186") == 0
+		|| strcmp(phone.Left(3), "145") == 0
+		|| strcmp(phone.Left(3), "176") == 0
+		){
+		return true;
+	}
+	return false;
+}
+
+
 LRESULT CIncrementSystemBFDlg::OnMyClickMessage(WPARAM wParam, LPARAM lParam)
 {
 	
@@ -140,26 +295,32 @@ LRESULT CIncrementSystemBFDlg::OnMyClickMessage(WPARAM wParam, LPARAM lParam)
 		
 		pDoc->get_Script(&spScript);
 
-		CComVariant var1 = 10, var2 = 20, varRet;  
-		spScript.Invoke2(L"Add", &var1, &var2, &varRet); 
+		CComVariant varRet;  
+		spScript.Invoke0(L"NoticeClient", &varRet); 
 
 		CComDispatchDriver spData = varRet.pdispVal; 
-		CComVariant varValue1, varValue2, varValue3;  
-		spData.GetPropertyByName(L"result", &varValue1);  
-		spData.GetPropertyByName(L"str", &varValue2); 
-		spData.GetPropertyByName(L"str1", &varValue3); 
+		CComVariant varValue1;
+		spData.GetPropertyByName(L"phone", &varValue1);
 
-		CString strResult = _com_util::ConvertBSTRToString((_bstr_t)varValue3);
+		CString strResult = _com_util::ConvertBSTRToString((_bstr_t)varValue1);
 
-		szCharUrlTest.Format("Test %s", strResult);
-		CLogFile::WriteLog(szCharUrlTest);
+		szCharUrl.Format("%s%s", cUrls.QueryPhone, strResult);
 		//szCharUrl.Format("http://www.baidu.com/s?wd=%s", strResult);
 		//szCharUrl.Format("http://132.90.101.25:7001/portal");
-		szCharUrl.Format("http://132.77.51.11:7700/salemanm/salemanm?service=page/silverservice.silverJobExec.goldUnfinishedFrame&listener=initFrame&PROVINCEID=0011&STAFF_ID=yujp21&PASSWORD=H3B5VVJk0JFroCYwhWHbA9C8yes=&LOGIN_TYPE=KFSYS&inModeCode=1&cond_CONFIG=job&cond_FLAG=all&closeNavMethod=close&JOB_STATUS=1&VALID_FLAG=1&EPARCHY_CODE=0010&SERVER_NUMBER=18612452378");
+		//szCharUrl.Format("http://132.77.51.11:7700/salemanm/salemanm?service=page/silverservice.silverJobExec.goldUnfinishedFrame&listener=initFrame&PROVINCEID=0011&STAFF_ID=yujp21&PASSWORD=H3B5VVJk0JFroCYwhWHbA9C8yes=&LOGIN_TYPE=KFSYS&inModeCode=1&cond_CONFIG=job&cond_FLAG=all&closeNavMethod=close&JOB_STATUS=1&VALID_FLAG=1&EPARCHY_CODE=0010&SERVER_NUMBER=18612452378");
+		 
+		CString sResult(_T(""));  
+  
+		// http://132.77.220.134:8081/window/servlet/CheckSerialNumber?serial_number=132.77.220.134
 		
-		m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
+
+		//CString ip(tempUrl.Left(pos).rig);
+
+		HttpRequestGet("132.77.220.134", 8081, "window/servlet/CheckSerialNumber?serial_number="+strResult, sResult);
+		///m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
+
+   		//PostMessage(WM_SIZE,0,0);
    }
-   	PostMessage(WM_SIZE,0,0);
    return 1;
 }
 
@@ -168,16 +329,26 @@ LRESULT CIncrementSystemBFDlg::OnMyClipMessage(WPARAM wParam, LPARAM lParam)
 	char *str;
 	str = (char *)lParam;
 	CString tempStr(str);
-	szCharUrl.Format("http://www.baidu.com/s?wd=%s", tempStr.Left(11));
+
+	if (!checkPhoneIsUnicom(tempStr.Left(11))){
+		return 0;	
+	}
+	
+	CString logStr;
+	logStr.Format("匹配号码段成功[%s]", tempStr.Left(11));
+	CLogFile::WriteLog(logStr);
+	
+	szCharUrl.Format("%s%s", cUrls.QueryPhone, tempStr.Left(11));
+	//szCharUrl.Format("http://www.baidu.com/s?wd=%s", tempStr.Left(11));
 	CLogFile::WriteLog(szCharUrl);
 	
-	m_MyIE.Navigate("Y:\\Downloads\\TelEscrowTest.htm", NULL, NULL, NULL, NULL);
-	//m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
-
+	m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
+	PostMessage(WM_SIZE,0,0);
 	//m_MyIE.GetDocument();
 	return 1;
 }
 
+// 处理键盘捕捉的数字按键信息
 LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 {
 		// lParam&0x800000，如果结果是1，表示是被释放的，也就是抬起的。
@@ -191,9 +362,11 @@ LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 			}
 			CString tempCode;
 			tempCode.Format("%c", wParam);
-			//log.Format("%d [%s]%c -- [%s]%p", telPos, cc, wParam, telPhone, telPhone);
-			//CLogFile::WriteLog(log);
 			memcpy(&telPhone[telPos], tempCode, 1);
+			
+			CString logStr;
+			logStr.Format("%d %c -- [%s]%p", telPos, wParam, telPhone, telPhone);
+			CLogFile::WriteLog(logStr);
 			telPos++;
 		}
 
@@ -209,18 +382,23 @@ LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 		
 	}	
 
+
+
 	if (telPos >= 11){
 		telPos = 0;
 		telPhone[12] = '\0';
 			
-		log.Format("look : [%s]%p",  telPhone, telPhone);
+		log.Format("Server Phone Number : [%s]",  telPhone);
 		CLogFile::WriteLog(log); 
 
-		//15811043447szCharUrl.Format("http://www.baidu.com/s?wd=%s", telPhone);
+		if (!checkPhoneIsUnicom(telPhone)){
+			return 0;	
+		}
+		//szCharUrl.Format("http://www.baidu.com/s?wd=%s", telPhone);
+		szCharUrl.Format("%s%s", cUrls.QueryPhone, telPhone);
 		
-		log.Format("szCharUrl %s", szCharUrl);
-		CLogFile::WriteLog(log);
-		m_MyIE.Navigate("Y:\\Downloads\\TelEscrowTest.htm", NULL, NULL, NULL, NULL);
+		m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
+		PostMessage(WM_SIZE,0,0);
 		//m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
 	}
 	return 1;
@@ -257,6 +435,8 @@ BOOL CIncrementSystemBFDlg::OnInitDialog()
 	}
 	loadhook();
 
+	m_MyIE.Navigate(cUrls.Logon, NULL, NULL, NULL, NULL);
+	PostMessage(WM_SIZE,0,0);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -481,8 +661,7 @@ void CIncrementSystemBFDlg::OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIAN
 #define RESETPWD_HTML_ID _T("ResetPassword")
 #define LOGOFF_HTML_ID _T("Logoff")
 				*/
-				ProcessElementCollection( pElemColl, "myid");
-				ProcessElementCollection( pElemColl, LOGON_HTML_ID);
+				ProcessElementCollection( pElemColl, "querySerialNumber");
 			}
 		}
 		//ProcessDocument( pDocDisp );

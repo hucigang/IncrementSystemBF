@@ -146,7 +146,7 @@ STDMETHODIMP CMyEventSink::Invoke(
 		break;
 	case DISPID_CLICK:
 
-		AfxMessageBox("click event");
+		//AfxMessageBox("click event");
 		HWND h_Wnd;
 		h_Wnd = FindWindow(NULL, cSystem.Title);
 		::PostMessage(h_Wnd, WM_MYCLICKMESSAGE, 0, 0);
