@@ -47,10 +47,12 @@ BEGIN_MESSAGE_MAP(CIncrementSystemBFDlg, CDialog)
 	ON_WM_CHANGECBCHAIN()
 	ON_WM_DRAWCLIPBOARD()
 	ON_WM_ACTIVATE()
+	ON_WM_SIZE()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 CString szCharUrl;
+CString szCharUrlTest;
 CString log;
 char telPhone[12] = {0};
 int telPos = 0;
@@ -63,6 +65,64 @@ HINSTANCE hDLL=NULL;
 LOADHOOK loadhook;
 UNLOADHOOK unloadhook;
 HWND m_hView;
+bool bRun;
+int PaintTime=0;;
+struct scale
+{
+double xs1;
+double ys1;
+double xs2;
+double ys2;
+};
+scale s[100];
+int i=0;
+int WindowWidth;
+int WindwoHeight;
+int xOffset;
+int yOffset;
+
+BOOL CALLBACK EnumWindowsProc( 
+HWND hwnd, // handle to parent window 
+LPARAM lParam // application-defined value 
+) 
+{ 
+	CLogFile::WriteLog("EnumWindowsProc");
+	CRect rc;
+	::GetWindowRect(hwnd,&rc);
+	rc.left -= xOffset;
+	rc.right -= xOffset;
+	rc.top -= yOffset;
+	rc.bottom -= yOffset;
+	s[i].xs1=(double)rc.left/(double)WindowWidth;
+	s[i].ys1=(double)rc.top/(double)WindwoHeight;
+	s[i].xs2=(double)rc.Width()/(double)WindowWidth;
+	s[i].ys2=(double)rc.Height()/(double)WindwoHeight;
+	i++;
+	return TRUE; 
+} 
+
+BOOL CALLBACK SetWindowRectProc( 
+HWND hwnd, // handle to parent window 
+long lParam // application-defined value 
+) 
+{ 
+	CHAR szClassName[500];
+	GetClassName(hwnd, szClassName, 500);
+
+	//CString logTemp;
+	//logTemp.Format(" SetWindowRectProc [%s]", szClassName);
+	//CLogFile::WriteLog(logTemp);
+	CRect rc;
+	rc.left=WindowWidth*s[i].xs1;
+	rc.top=WindwoHeight*s[i].ys1;
+	rc.right=WindowWidth*s[i].xs1+WindowWidth*s[i].xs2;
+	rc.bottom=WindwoHeight*s[i].ys1+WindwoHeight*s[i].ys2;
+	//::MoveWindow(hwnd,rc.left,rc.top,rc.Width(),rc.Height(),1);
+	::MoveWindow(hwnd,0,0,cSystem.Width,cSystem.Height,1);
+	i++;
+	return TRUE; 
+} 
+
 LRESULT CIncrementSystemBFDlg::OnMyClickMessage(WPARAM wParam, LPARAM lParam)
 {
 	
@@ -76,28 +136,30 @@ LRESULT CIncrementSystemBFDlg::OnMyClickMessage(WPARAM wParam, LPARAM lParam)
    if (pDocDisp != NULL) 
    {
       // Obtained the document object by specifying the IHTMLDocument2 Interface.
-      HRESULT hr= pDocDisp->QueryInterface( IID_IHTMLDocument2, (void**)&pDoc );
+		HRESULT hr= pDocDisp->QueryInterface( IID_IHTMLDocument2, (void**)&pDoc );
 		
-	  pDoc->get_Script(&spScript);
-	  
+		pDoc->get_Script(&spScript);
 
-  
-	CComVariant var1 = 10, var2 = 20, varRet;  
-	spScript.Invoke2(L"Add", &var1, &var2, &varRet); 
+		CComVariant var1 = 10, var2 = 20, varRet;  
+		spScript.Invoke2(L"Add", &var1, &var2, &varRet); 
 
-	CComDispatchDriver spData = varRet.pdispVal;  
-    CComVariant varValue1, varValue2, varValue3;  
-    spData.GetPropertyByName(L"result", &varValue1);  
-    spData.GetPropertyByName(L"str", &varValue2); 
-	spData.GetPropertyByName(L"str1", &varValue3); 
+		CComDispatchDriver spData = varRet.pdispVal; 
+		CComVariant varValue1, varValue2, varValue3;  
+		spData.GetPropertyByName(L"result", &varValue1);  
+		spData.GetPropertyByName(L"str", &varValue2); 
+		spData.GetPropertyByName(L"str1", &varValue3); 
 
-	CString strResult = _com_util::ConvertBSTRToString((_bstr_t)varValue3);
+		CString strResult = _com_util::ConvertBSTRToString((_bstr_t)varValue3);
 
-	CLogFile::WriteLog(strResult);
-
-	szCharUrl.Format("http://www.baidu.com/s?wd=%s", strResult);
-	m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
+		szCharUrlTest.Format("Test %s", strResult);
+		CLogFile::WriteLog(szCharUrlTest);
+		//szCharUrl.Format("http://www.baidu.com/s?wd=%s", strResult);
+		//szCharUrl.Format("http://132.90.101.25:7001/portal");
+		szCharUrl.Format("http://132.77.51.11:7700/salemanm/salemanm?service=page/silverservice.silverJobExec.goldUnfinishedFrame&listener=initFrame&PROVINCEID=0011&STAFF_ID=yujp21&PASSWORD=H3B5VVJk0JFroCYwhWHbA9C8yes=&LOGIN_TYPE=KFSYS&inModeCode=1&cond_CONFIG=job&cond_FLAG=all&closeNavMethod=close&JOB_STATUS=1&VALID_FLAG=1&EPARCHY_CODE=0010&SERVER_NUMBER=18612452378");
+		
+		m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
    }
+   	PostMessage(WM_SIZE,0,0);
    return 1;
 }
 
@@ -154,7 +216,7 @@ LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 		log.Format("look : [%s]%p",  telPhone, telPhone);
 		CLogFile::WriteLog(log); 
 
-		//szCharUrl.Format("http://www.baidu.com/s?wd=%s", telPhone);
+		//15811043447szCharUrl.Format("http://www.baidu.com/s?wd=%s", telPhone);
 		
 		log.Format("szCharUrl %s", szCharUrl);
 		CLogFile::WriteLog(log);
@@ -176,7 +238,11 @@ BOOL CIncrementSystemBFDlg::OnInitDialog()
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
+  
 
+	bRun = true;
+	//PostMessage(WM_SIZE,0,0);
+	SetWindowText(cSystem.Title);
 	SetWindowPos(&wndTopMost, 0, 0, cSystem.Width, cSystem.Height, SWP_NOMOVE|SWP_SHOWWINDOW);
 	CenterWindow();
 	
@@ -337,85 +403,91 @@ BEGIN_EVENTSINK_MAP(CIncrementSystemBFDlg, CDialog)
 	//}}AFX_EVENTSINK_MAP
 END_EVENTSINK_MAP()
 
+void CIncrementSystemBFDlg::ProcessElementCollection(IHTMLElementCollection* pElemColl, CString id)
+{	
+	IDispatch* pElemDisp = NULL;
+	IHTMLElement* pElem = NULL;
+	VARIANT vID;
+	VARIANT vIdx;
+
+	VariantInit(&vID);
+	vID.vt=VT_BSTR;
+	vID.bstrVal=_bstr_t(id);
+
+	VariantInit(&vIdx);
+			  
+	vIdx.vt=VT_I4;
+	vIdx.lVal=0;
+
+	HRESULT hr = pElemColl->item( vID, vIdx, &pElemDisp );
+	if ( SUCCEEDED(hr) && pElemDisp != 0x0)
+	{
+		hr = pElemDisp->QueryInterface( IID_IHTMLElement, (void**)&pElem );
+		if ( SUCCEEDED(hr) )
+		{
+			// Obtained element with ID of "myID".
+			BSTR bsHtml;
+			pElem->get_outerHTML(&bsHtml);
+			CLogFile::WriteLog(bsHtml);
+
+			ConnectButton1( pElem );
+			pElem->Release();	
+		}
+		pElemDisp->Release();
+	}
+	pElemColl->Release();
+}
 
 void CIncrementSystemBFDlg::OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIANT FAR* URL) 
 {
 	// TODO: Add your control notification handler code here
-	CLogFile::WriteLog("OnDocumentCompleteExplorer1");
-   IDispatch * pDocDisp = NULL;
+	IDispatch * pDocDisp = NULL;
    
-   // get the DOM
-   IHTMLDocument2  *pDoc=NULL;
-   pDocDisp = m_MyIE.GetDocument(); 
+	// get the DOM
+	IHTMLDocument2  *pDoc=NULL;
+	pDocDisp = m_MyIE.GetDocument(); 
    
-   if (pDocDisp != NULL) 
-   {
+	if (pDocDisp != NULL) 
+	{
       // Obtained the document object by specifying the IHTMLDocument2 Interface.
-      HRESULT hr= pDocDisp->QueryInterface( IID_IHTMLDocument2, (void**)&pDoc );
+		HRESULT hr= pDocDisp->QueryInterface( IID_IHTMLDocument2, (void**)&pDoc );
 		
-	  IHTMLElement* pBody = NULL;
-	  BSTR bstrBody;
-	  pDoc->get_body(&pBody);
+		IHTMLElement* pBody = NULL;
+		BSTR bstrBody;
+		pDoc->get_body(&pBody);
 
-	  pBody->get_innerHTML(&bstrBody);
+		pBody->get_innerHTML(&bstrBody);
 
-      if ( SUCCEEDED(hr) )
-      {
-          // Obtained the IHTMLDocument2 interface for the document object
-
-		  IHTMLElementCollection* pElemColl = NULL;
-		  
-		  hr = pDoc->get_all( &pElemColl );
-		  if ( SUCCEEDED(hr) )//ec
-		  {
-			CComDispatchDriver spScript; 
-			pDoc->get_Script(&spScript);  
-			CComVariant var(static_cast<IDispatch*>(new CMyEventSink));  
-			spScript.Invoke1(L"SaveCppObject", &var); 
-			  // Obtained element collection.
-			  // ProcessElementCollection( pElemColl );
-			IDispatch* pElemDisp = NULL;
-			IHTMLElement* pElem = NULL;
-			 // _variant_t varID(_bstr_t("myID"), VT_BSTR );
-			//  _variant_t varIdx;//( 0, VT_I4 );
-			  
-			VARIANT vID;
-			VARIANT vIdx;
-
-			VariantInit(&vID);
-			vID.vt=VT_BSTR;
-			vID.bstrVal=_bstr_t("myid");
-
-			VariantInit(&vIdx);
-			  
-			vIdx.vt=VT_I4;
-			vIdx.lVal=0;
-
-			hr = pElemColl->item( vID, vIdx, &pElemDisp );
-			if ( SUCCEEDED(hr) && pElemDisp != 0x0)
+		if ( SUCCEEDED(hr) )
+		{
+			// Obtained the IHTMLDocument2 interface for the document object
+			IHTMLElementCollection* pElemColl = NULL;
+			hr = pDoc->get_all( &pElemColl );
+			if ( SUCCEEDED(hr) )//ec
 			{
-				hr = pElemDisp->QueryInterface( IID_IHTMLElement, (void**)&pElem );
-				if ( SUCCEEDED(hr) )
-				{
-					  // Obtained element with ID of "myID".
-					BSTR bsHtml;
-					pElem->get_outerHTML(&bsHtml);
-					CLogFile::WriteLog(bsHtml);
-
-					ConnectButton1( pElem );
-					pElem->Release();	
-				}
-				pElemDisp->Release();
+				CComDispatchDriver spScript; 
+				pDoc->get_Script(&spScript);  
+				CComVariant var(static_cast<IDispatch*>(new CMyEventSink));  
+				spScript.Invoke1(L"SaveCppObject", &var); 
+				// Obtained element collection.
+				/*
+#define LOGON_HTML_ID _T("Logon")
+#define HTTP1_HTML_ID _T("Http1")
+#define AUTH_HTML_ID _T("Authentication")
+#define QUERYPT_HTML_ID _T("QueryPhoneType")
+#define QUERYPOP_HTML_ID _T("QueryPopup")
+#define QUERYPHONE_HTML_ID _T("QueryPhone")
+#define HB_HTML_ID _T("Heartbeat")
+#define RESETPWD_HTML_ID _T("ResetPassword")
+#define LOGOFF_HTML_ID _T("Logoff")
+				*/
+				ProcessElementCollection( pElemColl, "myid");
+				ProcessElementCollection( pElemColl, LOGON_HTML_ID);
 			}
-			pElemColl->Release();
 		}
-
-	  }
-
-          //ProcessDocument( pDocDisp );
-   }
-      pDocDisp->Release();
-
+		//ProcessDocument( pDocDisp );
+	}
+	pDocDisp->Release();
 }
 
 void CIncrementSystemBFDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized) 
@@ -439,4 +511,36 @@ BOOL CIncrementSystemBFDlg::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CIncrementSystemBFDlg::OnSize(UINT nType, int cx, int cy) 
+{
+	if(bRun){
+		if(PaintTime == 0){
+			PaintTime++;
+			i=0;
+			CRect rc1;
+			GetClientRect(&rc1);
+			WindowWidth=rc1.Width();
+			WindwoHeight=rc1.Height();
+			CRect rc2=rc1;
+			ClientToScreen(&rc2);
+			xOffset=rc2.left-rc1.left;
+			yOffset=rc2.top-rc1.top;
+			EnumChildWindows(this->GetSafeHwnd(),EnumWindowsProc,0); 
+			ShowWindow(SW_NORMAL);
+		}else{
+			CRect rc1;
+			GetClientRect(&rc1);
+			WindowWidth=rc1.Width();
+			WindwoHeight=rc1.Height();
+			ClientToScreen(&rc1);
+			i=0;
+			EnumChildWindows(this->GetSafeHwnd(),SetWindowRectProc,0); 
+		}
+	}
+
+	CDialog::OnSize(nType, cx, cy);
+	
+	// TODO: Add your message handler code here
 }

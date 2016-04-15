@@ -65,6 +65,7 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CIncrementSystemBFDlg)
 	virtual BOOL OnInitDialog();
+	virtual void CIncrementSystemBFDlg::ProcessElementCollection(IHTMLElementCollection* pElemColl, CString id);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg LRESULT OnMyMessage(WPARAM w, LPARAM l);
@@ -75,6 +76,7 @@ protected:
 	afx_msg void OnDrawClipboard();
 	afx_msg void OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIANT FAR* URL);
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

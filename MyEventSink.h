@@ -15,7 +15,7 @@ public:
 	CMyEventSink();
 	virtual ~CMyEventSink();
 DWORD CMyEventSink::GetProcessID();
-void CMyEventSink::ShowMessageBox(const wchar_t *msg);
+void CMyEventSink::ShowMessageBox(const wchar_t *msg, const wchar_t *msg1);
 STDMETHODIMP QueryInterface(const struct _GUID &iid,void ** ppv);
 ULONG __stdcall AddRef(void);
 ULONG __stdcall Release(void);

@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "MyEventSink.h"
 #include "LogFile.h"
+#include "IncrementSystemBF.h"
 #include "IncrementSystemBFDlg.h"
 #include <comdef.h>
 
@@ -127,6 +128,13 @@ STDMETHODIMP CMyEventSink::Invoke(
 		break;
 	case FUNCTION_ShowMessageBox:
 		//检查是否只有一个参数  
+        if (pDispParams->cArgs != 2)  
+            return E_NOTIMPL;  
+        //检查这个参数是否是字符串类型  
+        if (pDispParams->rgvarg[0].vt != VT_BSTR)  
+            return E_NOTIMPL; 
+		CMyEventSink::ShowMessageBox(pDispParams->rgvarg[0].bstrVal, pDispParams->rgvarg[1].bstrVal);
+		//检查是否只有一个参数  
 		break;
 	case FUNCTION_GetProcessID:
 		aid = CMyEventSink::GetProcessID();
@@ -137,9 +145,10 @@ STDMETHODIMP CMyEventSink::Invoke(
         *pVarResult = va; 
 		break;
 	case DISPID_CLICK:
+
 		AfxMessageBox("click event");
 		HWND h_Wnd;
-		h_Wnd = FindWindow(NULL, "IncrementSystemBF");
+		h_Wnd = FindWindow(NULL, cSystem.Title);
 		::PostMessage(h_Wnd, WM_MYCLICKMESSAGE, 0, 0);
 		break;
 	default:
@@ -152,15 +161,16 @@ STDMETHODIMP CMyEventSink::Invoke(
 DWORD CMyEventSink::GetProcessID()  
 {  
 		HWND h_Wnd;
-		h_Wnd = FindWindow(NULL, "IncrementSystemBF");
+		h_Wnd = FindWindow(NULL, cSystem.Title);
 		DWORD dwPID;
 		DWORD dwThreadID = ::GetWindowThreadProcessId(h_Wnd, &dwPID);
 		return dwPID;
 }  
   
-void CMyEventSink::ShowMessageBox(const wchar_t *msg)  
+void CMyEventSink::ShowMessageBox(const wchar_t *msg, const wchar_t *msg1)  
 {  
-    //MessageBox(msg, L"这是来自javascript的消息");
 	
+    //MessageBox(h_Wnd, msg, L"这是来自javascript的消息");
+	CLogFile::WriteLog(msg);
 		//::PostMessage(m_pWnd->GetParent(), WM_MYCLICKMESSAGE, 0, 0);
 }  
