@@ -83,6 +83,7 @@ CIncrementSystemBFApp::CIncrementSystemBFApp()
 	cSystem.Width = atoi(setConfig("System", "Width"));
 	cSystem.Height = atoi(setConfig("System", "Height"));
 	cSystem.Timeout = atoi(setConfig("System", "Timeout"));
+	cSystem.PressTimeout = atoi(setConfig("System", "PressTimeout"));
 	cSystem.QueryElapse = atoi(setConfig("System", "QueryElapse"));
 	cSystem.Beep = atoi(setConfig("System", "Beep"));
 	cSystem.ShowClose = atoi(setConfig("System", "ShowClose"));

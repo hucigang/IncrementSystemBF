@@ -71,6 +71,8 @@ LOADHOOK loadhook;
 UNLOADHOOK unloadhook;
 HWND m_hView;
 
+CTime timeStart;
+CTime timeNow;
 
 BOOL HttpRequestGet(IN const CString& sHomeUrl, IN const LONG nPort, IN const CString& sPageUrl, OUT CString &sResult)  
 {   
@@ -104,7 +106,7 @@ BOOL HttpRequestGet(IN const CString& sHomeUrl, IN const LONG nPort, IN const CS
    Connection: Keep-Alive
    Host: 132.77.220.134:8081
 	*/
-    sHtmlHeader = _T("Accept: text\/html, application\/xhtml+xml, image/jxr, *\/*\r\n");  
+    sHtmlHeader = _T("Accept: text/html, application/xhtml+xml, image/jxr, */*\r\n");  
     sHtmlHeader += _T("Accept-Encoding: gzip, deflate\r\n");  
     sHtmlHeader += _T("Accept-Language: zh-Hans-CN, zh-Hans; q=0.5\r\n");  
 	sHtmlHeader += _T("Connection: Keep-Alive\r\n");
@@ -357,6 +359,15 @@ LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 
 		if ((wParam >= 0x30 && wParam <= 0x39)
 		||(wParam >= 0x60 && wParam <= 0x69)){
+			timeNow = CTime::GetCurrentTime();
+			CTimeSpan t = timeNow - timeStart;
+			if (t.GetSeconds() >= cSystem.PressTimeout){
+				CString logTime;
+				logTime.Format(_T("输入间隔超过%d秒，此次按键为号码首位"), cSystem.PressTimeout);
+				CLogFile::WriteLog(logTime);
+				telPos = 0;
+			}
+			
 			if (telPos == 0){
 				memset(&telPhone, 1, sizeof(telPhone) );
 			}
@@ -375,8 +386,8 @@ LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 				
 			telPos--;
 		}
-		if (wParam == 0x2E){
-			CLogFile::WriteLog("Enter Del");
+		if (wParam == 0x1B){
+			CLogFile::WriteLog(_T("接收ESC按键 重置输入信息, 下个数字为号码首位!"));
 			telPos = 0;
 		}
 		
@@ -695,6 +706,7 @@ BOOL CIncrementSystemBFDlg::PreTranslateMessage(MSG* pMsg)
 void CIncrementSystemBFDlg::OnSize(UINT nType, int cx, int cy) 
 {
 	if(bRun){
+		timeStart = CTime::GetCurrentTime();
 		if(PaintTime == 0){
 			PaintTime++;
 			i=0;

@@ -60,6 +60,7 @@ ReserveDays = 30
 	int Width;
 	int Height;
 	int Timeout;
+	int PressTimeout;
 	int QueryElapse;
 	int Beep;
 	int ShowClose;
