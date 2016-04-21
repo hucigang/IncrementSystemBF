@@ -12,6 +12,7 @@
 	#error include 'stdafx.h' before including this file for PCH
 #endif
 
+#define MY_GUID "{0FE32655_6249_4268_894D_DE869E017C24}"
 #define CONFIG_PSTR _T("IncrementSystem.ini")
 
 #define LOGON_HTML_ID _T("Logon")

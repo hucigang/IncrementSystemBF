@@ -731,11 +731,21 @@ BOOL CIncrementSystemBFDlg::PreTranslateMessage(MSG* pMsg)
 	// TODO: Add your specialized code here and/or call the base class  
 	
 	
-	if (isActive && WM_SYSKEYDOWN == pMsg->message
+	if (isActive && WM_SYSKEYDOWN){	
 // WM_SYSKEYDOWN  表示ALT键按下
-		&& VK_F4 == pMsg->wParam)
-	{
-		return TRUE;
+		if (pMsg->message && VK_F4 == pMsg->wParam)
+		{
+			return TRUE;
+		}
+		switch(pMsg->wParam)  
+        {  
+            case VK_ESCAPE: //Esc按键事件  
+                return true;  
+            case VK_RETURN: //Enter按键事件  
+                return true;  
+            default:  
+                ;  
+        }
 	}
 
 	return CDialog::PreTranslateMessage(pMsg);

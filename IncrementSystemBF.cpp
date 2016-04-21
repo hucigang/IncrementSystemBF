@@ -163,6 +163,13 @@ CIncrementSystemBFApp theApp;
 
 BOOL CIncrementSystemBFApp::InitInstance()
 {
+
+	CreateMutex(NULL,true,MY_GUID); 
+	if(GetLastError() == ERROR_ALREADY_EXISTS) 
+	{ 
+		AfxMessageBox(_T("应用程序不可以重复启动"),MB_OK | MB_APPLMODAL | MB_ICONSTOP); 
+		return(false); 
+	}
 	AfxEnableControlContainer();
 
 	// Standard initialization
