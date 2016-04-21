@@ -23,9 +23,13 @@
 #define HB_HTML_ID _T("Heartbeat")
 #define RESETPWD_HTML_ID _T("ResetPassword")
 #define LOGOFF_HTML_ID _T("Logoff")
+#define PHONEHEAD_ID _T("PhoneHead")
 
 #define CMAX_LEN 100
 #define UMAX_LEN 500
+#pragma warning(disable: 4786)
+#include <vector>
+#include <string>
 
 typedef struct configSystem
 {
@@ -100,6 +104,7 @@ Logoff =http://10.161.18.251:8080/popup/web/sales/GuideRecommend!userQuite.actio
 	char Heartbeat[UMAX_LEN];
 	char ResetPassword[UMAX_LEN];
 	char Logoff[UMAX_LEN];
+	std::vector<std::string> phoneHeads;
 } WinBFUrls;
 
 extern WinBFConfig cSystem;

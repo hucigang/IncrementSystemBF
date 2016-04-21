@@ -65,11 +65,12 @@ BOOL CLogFile::WriteLog(CString LogText)
 
         if(!m_SFile.Open(m_sFilePath + "\\" +m_sFileName,CFile::modeReadWrite))
         {
-            m_SFile.Open(m_sFilePath + "\\" + m_sFileName,CFile::modeCreate | CFile::modeReadWrite | CFile::typeText);
+            //m_SFile.Open(m_sFilePath + "\\" + m_sFileName,CFile::modeCreate | CFile::modeReadWrite | CFile::typeText);
+			m_SFile.Open(m_sFilePath + "\\" + m_sFileName,CFile::modeCreate |CFile::modeNoTruncate| CFile::modeReadWrite | CFile::typeText);
         }
 
         m_SFile.SeekToEnd(); 
-        char* m_szMessage;
+		char* m_szMessage;
         m_szMessage=(LPTSTR)(LPCTSTR)m_sErrorMessage;
         m_SFile.Write(m_szMessage,lstrlen(m_szMessage));   
         m_SFile.Close();

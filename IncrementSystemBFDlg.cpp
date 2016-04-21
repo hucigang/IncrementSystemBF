@@ -1,6 +1,6 @@
 // IncrementSystemBFDlg.cpp : implementation file
 //
-
+#pragma warning(disable: 4786)
 #include "stdafx.h"
 #include "IncrementSystemBF.h"
 #include "IncrementSystemBFDlg.h"
@@ -9,6 +9,10 @@
 #include <Wininet.h>  
 #include <atlbase.h>
 #include <atlcom.h>
+
+#include <vector>
+#include <algorithm>
+#include <iostream>
               
 #pragma comment(lib, "Wininet.lib")  
 
@@ -53,6 +57,7 @@ BEGIN_MESSAGE_MAP(CIncrementSystemBFDlg, CDialog)
 	ON_WM_DRAWCLIPBOARD()
 	ON_WM_ACTIVATE()
 	ON_WM_SIZE()
+	ON_WM_SYSCOMMAND()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -264,6 +269,15 @@ BOOL checkPhoneIsUnicom(CString phone)
 	if (phone.GetLength() < 11){
 		return false;
 	}
+	using namespace std;
+	vector<std::string>::iterator result = find(cUrls.phoneHeads.begin(),cUrls.phoneHeads.end(),(LPCTSTR)phone.Left(3));
+
+	if ( result == cUrls.phoneHeads.end( ) ) {
+		return false;
+	}else{
+		return true;
+	}
+	/*
 	if (strcmp(phone.Left(3), "130") == 0
 		|| strcmp(phone.Left(3), "131") == 0
 		|| strcmp(phone.Left(3), "132") == 0
@@ -277,6 +291,7 @@ BOOL checkPhoneIsUnicom(CString phone)
 		return true;
 	}
 	return false;
+	*/
 }
 
 
@@ -286,7 +301,6 @@ LRESULT CIncrementSystemBFDlg::OnMyClickMessage(WPARAM wParam, LPARAM lParam)
 	CComDispatchDriver spScript;
 	IDispatch * pDocDisp = NULL;
    
-   // get the DOM
    IHTMLDocument2  *pDoc=NULL;
    pDocDisp = m_MyIE.GetDocument(); 
    
@@ -333,12 +347,14 @@ LRESULT CIncrementSystemBFDlg::OnMyClipMessage(WPARAM wParam, LPARAM lParam)
 	CString tempStr(str);
 
 	if (!checkPhoneIsUnicom(tempStr.Left(11))){
+		
+		timeStart = CTime::GetCurrentTime();
 		return 0;	
 	}
 	
-	CString logStr;
-	logStr.Format("匹配号码段成功[%s]", tempStr.Left(11));
-	CLogFile::WriteLog(logStr);
+	//CString logStr;
+	//logStr.Format("匹配号码段成功[%s]", tempStr.Left(11));
+	//CLogFile::WriteLog(logStr);
 	
 	szCharUrl.Format("%s%s", cUrls.QueryPhone, tempStr.Left(11));
 	//szCharUrl.Format("http://www.baidu.com/s?wd=%s", tempStr.Left(11));
@@ -346,6 +362,9 @@ LRESULT CIncrementSystemBFDlg::OnMyClipMessage(WPARAM wParam, LPARAM lParam)
 	
 	m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
 	PostMessage(WM_SIZE,0,0);
+	ShowWindow(SW_RESTORE);
+	
+	timeStart = CTime::GetCurrentTime();
 	//m_MyIE.GetDocument();
 	return 1;
 }
@@ -353,7 +372,7 @@ LRESULT CIncrementSystemBFDlg::OnMyClipMessage(WPARAM wParam, LPARAM lParam)
 // 处理键盘捕捉的数字按键信息
 LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 {
-		// lParam&0x800000，如果结果是1，表示是被释放的，也就是抬起的。
+		// lParam&0x800000，如果结果是1，表示是被释放的，也就是抬起的。 
 
 	if ( !(lParam & 0X80000000)) {
 
@@ -363,9 +382,10 @@ LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 			CTimeSpan t = timeNow - timeStart;
 			if (t.GetSeconds() >= cSystem.PressTimeout){
 				CString logTime;
-				logTime.Format(_T("输入间隔超过%d秒，此次按键为号码首位"), cSystem.PressTimeout);
+				logTime.Format(_T("输入间隔超过%d秒，此次按键为号码首位!"), cSystem.PressTimeout);
 				CLogFile::WriteLog(logTime);
 				telPos = 0;
+				timeStart = CTime::GetCurrentTime();
 			}
 			
 			if (telPos == 0){
@@ -383,8 +403,19 @@ LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 
 		if (wParam == 0x8){
 			CLogFile::WriteLog("Enter Back");
+
+			CString logStr;
+			if (telPos <= 1){
+				telPos = 1;
+			}
+			telPhone[telPos-1] = '\0';  
+			logStr.Format("当前号码串为: [%s]", telPhone);
+			CLogFile::WriteLog(logStr);
 				
 			telPos--;
+			if (telPos < 0){
+				telPos = 0;
+			}
 		}
 		if (wParam == 0x1B){
 			CLogFile::WriteLog(_T("接收ESC按键 重置输入信息, 下个数字为号码首位!"));
@@ -405,11 +436,14 @@ LRESULT CIncrementSystemBFDlg::OnMyMessage(WPARAM wParam, LPARAM lParam)
 		if (!checkPhoneIsUnicom(telPhone)){
 			return 0;	
 		}
-		//szCharUrl.Format("http://www.baidu.com/s?wd=%s", telPhone);
+		//szCharUrl.Format("http://www.baidu.com/s?wd=%s", telPhone); 
 		szCharUrl.Format("%s%s", cUrls.QueryPhone, telPhone);
 		
 		m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
 		PostMessage(WM_SIZE,0,0);
+		ShowWindow(SW_RESTORE);
+		
+		timeStart = CTime::GetCurrentTime();
 		//m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
 	}
 	return 1;
@@ -423,7 +457,7 @@ BOOL CIncrementSystemBFDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	// Set the icon for this dialog.  The framework does this automatically
+	// Set the icon for this dialog.  The framework does this automatically 
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
@@ -434,6 +468,7 @@ BOOL CIncrementSystemBFDlg::OnInitDialog()
 	SetWindowText(cSystem.Title);
 	SetWindowPos(&wndTopMost, 0, 0, cSystem.Width, cSystem.Height, SWP_NOMOVE|SWP_SHOWWINDOW);
 	CenterWindow();
+	//ShowWindow(SW_SHOWMINIMIZED);
 	
 	//::RegisterHotKey(m_hWnd, WM_USER,MOD_ALT, VK_F4);
 	// TODO: Add extra initialization here
@@ -471,7 +506,7 @@ void CIncrementSystemBFDlg::OnPaint()
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// Draw the icon
+		// Draw the icon 
 		dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
@@ -541,7 +576,8 @@ void CIncrementSystemBFDlg::OnDrawClipboard()
 static const GUID DIID_HTMLElementEvents2 = 
 { 0x3050f60f, 0x98b5, 0x11cf, { 0xbb, 0x82, 0x00, 0xaa, 0x00, 0xbd, 0xce, 0x0b } };
 static const GUID DIID_HTMLinputTextElementEvents2 = 
-//{ 0xb6f9c783, 0x34d3, 0x4139, { 0xa6, 0x62, 0x7e, 0x44, 0xe4, 0x34, 0xb7, 0xb2} };
+//{ 0xb6f9c783, 0x34d3, 0x4139, { 0xa6, 0x62, 0x7e, 0x44, 0xe4, 0x34, 0xb7, 0xb2} }; 
+
 { 0x3050f618, 0x98b5, 0x11cf, { 0xbb, 0x82, 0x00, 0xaa, 0x00, 0xbd, 0xce, 0x0b } };
 //{ 0x3050F1C5, 0x98b5, 0x11cf, { 0xbb, 0x82, 0x0, 0xaa, 0x0, 0xbd, 0xce, 0x0b } };
 
@@ -659,7 +695,7 @@ void CIncrementSystemBFDlg::OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIAN
 				CComDispatchDriver spScript; 
 				pDoc->get_Script(&spScript);  
 				CComVariant var(static_cast<IDispatch*>(new CMyEventSink));  
-				spScript.Invoke1(L"SaveCppObject", &var); 
+				//spScript.Invoke1(L"SaveCppObject", &var); 
 				// Obtained element collection.
 				/*
 #define LOGON_HTML_ID _T("Logon")
@@ -672,6 +708,8 @@ void CIncrementSystemBFDlg::OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIAN
 #define RESETPWD_HTML_ID _T("ResetPassword")
 #define LOGOFF_HTML_ID _T("Logoff")
 				*/
+				// buttonChangePassword   querySerialNumber
+				
 				ProcessElementCollection( pElemColl, "querySerialNumber");
 			}
 		}
@@ -690,7 +728,7 @@ void CIncrementSystemBFDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinim
 
 BOOL CIncrementSystemBFDlg::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
+	// TODO: Add your specialized code here and/or call the base class  
 	
 	
 	if (isActive && WM_SYSKEYDOWN == pMsg->message
@@ -706,7 +744,6 @@ BOOL CIncrementSystemBFDlg::PreTranslateMessage(MSG* pMsg)
 void CIncrementSystemBFDlg::OnSize(UINT nType, int cx, int cy) 
 {
 	if(bRun){
-		timeStart = CTime::GetCurrentTime();
 		if(PaintTime == 0){
 			PaintTime++;
 			i=0;
@@ -733,5 +770,20 @@ void CIncrementSystemBFDlg::OnSize(UINT nType, int cx, int cy)
 
 	CDialog::OnSize(nType, cx, cy);
 	
-	// TODO: Add your message handler code here
+	// TODO: Add your message handler code here 
+}
+
+void CIncrementSystemBFDlg::OnSysCommand(UINT nID, LPARAM lParam) 
+{
+	// TODO: Add your message handler code here and/or call default 
+	if ((nID & 0xFFF0) == SC_CLOSE){
+		CString tempInfo;
+		tempInfo.Format("请确认是否退出 %s 系统!", cSystem.Title);
+		if (IDOK == ::MessageBox(m_hWnd, tempInfo, "确认框", MB_OKCANCEL)){
+		}else{
+			return;
+		}
+	}
+
+	CDialog::OnSysCommand(nID, lParam);
 }

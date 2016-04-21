@@ -1,6 +1,5 @@
 // IncrementSystemBF.cpp : Defines the class behaviors for the application.
 //
-
 #include "stdafx.h"
 #include "IncrementSystemBF.h"
 #include "IncrementSystemBFDlg.h"
@@ -53,6 +52,27 @@ CString CIncrementSystemBFApp::setConfig(CString section, CString name)
 	::GetPrivateProfileString(section,name,"",temp.GetBuffer(MAX_LENGTH),MAX_LENGTH,configFile);
 
 	return temp;
+}
+
+//字符串分割函数
+std::vector<std::string> split(std::string str,std::string pattern)
+{
+  std::string::size_type pos;
+  std::vector<std::string> result;
+  str+=pattern;//扩展字符串以方便操作
+  int size=str.size();
+ 
+  for(int i=0; i<size; i++)
+  {
+    pos=str.find(pattern,i);
+    if(pos<size)
+    {
+      std::string s=str.substr(i,pos-i);
+      result.push_back(s);
+      i=pos+pattern.size()-1;
+    }
+  }
+  return result;
 }
 
 CIncrementSystemBFApp::CIncrementSystemBFApp()
@@ -120,6 +140,16 @@ CIncrementSystemBFApp::CIncrementSystemBFApp()
 	strncpy(cUrls.Heartbeat,(LPCTSTR)setConfig("OfficeNetwork", HB_HTML_ID),sizeof(cUrls.Heartbeat));
 	strncpy(cUrls.ResetPassword,(LPCTSTR)setConfig("OfficeNetwork", RESETPWD_HTML_ID),sizeof(cUrls.ResetPassword));
 	strncpy(cUrls.Logoff,(LPCTSTR)setConfig("OfficeNetwork", LOGOFF_HTML_ID),sizeof(cUrls.Logoff));
+	char temp[UMAX_LEN];
+	strncpy(temp, (LPCTSTR)setConfig("OfficeNetwork", PHONEHEAD_ID),sizeof(temp));
+	CLogFile::WriteLog(temp);
+	string tempStr;
+	tempStr = temp;
+	string s=",";
+    cUrls.phoneHeads =split(tempStr,s);
+	//for(vector<string>::iterator it=cUrls.phoneHeads.begin(); it!=cUrls.phoneHeads.end();it++){
+	//	CLogFile::WriteLog(*it->_p);
+	//}
 	CLogFile::WriteLog("配置文件加载完成。"); 
 }
 
