@@ -479,8 +479,10 @@ BOOL CIncrementSystemBFDlg::OnInitDialog()
 		loadhook=(LOADHOOK)::GetProcAddress (hDLL,"EnableKeyboardCapture");
 		unloadhook=(UNLOADHOOK)::GetProcAddress (hDLL,"DisableKeyboardCapture");
 	}
-	loadhook();
+	//loadhook();
 
+	
+	//m_MyIE.Navigate("http://www.baidu.com", NULL, NULL, NULL, NULL);
 	m_MyIE.Navigate(cUrls.Logon, NULL, NULL, NULL, NULL);
 	PostMessage(WM_SIZE,0,0);
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -667,6 +669,7 @@ void CIncrementSystemBFDlg::ProcessElementCollection(IHTMLElementCollection* pEl
 
 void CIncrementSystemBFDlg::OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIANT FAR* URL) 
 {
+	DocumentCompleteExplorerSelectItem(pDisp, URL);
 	// TODO: Add your control notification handler code here
 	IDispatch * pDocDisp = NULL;
    
@@ -717,6 +720,43 @@ void CIncrementSystemBFDlg::OnDocumentCompleteExplorer1(LPDISPATCH pDisp, VARIAN
 	}
 	pDocDisp->Release();
 }
+
+bool isLogon = false;
+
+void CIncrementSystemBFDlg::DocumentCompleteExplorerSelectItem(LPDISPATCH pDisp, VARIANT* URL)
+{
+	CString url = URL->bstrVal;
+
+	if (url.Find(cUrls.Logon) > 0){
+		TRACE("UnLoadhook");
+		unloadhook();
+		isLogon = true;
+	}
+	if (isLogon){
+		if (url.Find(cUrls.Http1) > 0){
+			TRACE("Loadhook");
+			loadhook();
+			isLogon = false;
+		}
+	}
+    IUnknown*  pUnk;  
+    LPDISPATCH lpWBDisp;  
+    HRESULT    hr;  
+ 
+    pUnk = m_MyIE.GetControlUnknown();  
+    ASSERT(pUnk);  
+ 
+    hr = pUnk->QueryInterface(IID_IDispatch, (void**)&lpWBDisp);  
+    ASSERT(SUCCEEDED(hr));  
+ 
+    if (pDisp == lpWBDisp )  
+    {
+        //TRACE("Web document is finished downloading/n");//这里就是最佳获取时机的判断
+    }
+    pUnk->Release();
+    lpWBDisp->Release();
+}
+
 
 void CIncrementSystemBFDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized) 
 {
@@ -790,6 +830,7 @@ void CIncrementSystemBFDlg::OnSysCommand(UINT nID, LPARAM lParam)
 		CString tempInfo;
 		tempInfo.Format("请确认是否退出 %s 系统!", cSystem.Title);
 		if (IDOK == ::MessageBox(m_hWnd, tempInfo, "确认框", MB_OKCANCEL)){
+			unloadhook();
 		}else{
 			return;
 		}

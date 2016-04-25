@@ -57,6 +57,7 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	virtual void ProcessElementCollection(IHTMLElementCollection* pElemColl, CString id);
+	virtual void DocumentCompleteExplorerSelectItem(LPDISPATCH pDisp, VARIANT* URL);
 	//}}AFX_VIRTUAL
 
 // Implementation
