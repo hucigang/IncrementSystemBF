@@ -52,12 +52,14 @@ BEGIN_MESSAGE_MAP(CIncrementSystemBFDlg, CDialog)
 	ON_MESSAGE(WM_MYMESSAGE, OnMyMessage)
 	ON_MESSAGE(WM_MYCLIPMESSAGE, OnMyClipMessage)
 	ON_MESSAGE(WM_MYCLICKMESSAGE, OnMyClickMessage)
+	ON_MESSAGE(WM_MYIEMESSAGE, OnMyIEMessage)
 	ON_WM_DESTROY()
 	ON_WM_CHANGECBCHAIN()
 	ON_WM_DRAWCLIPBOARD()
 	ON_WM_ACTIVATE()
 	ON_WM_SIZE()
 	ON_WM_SYSCOMMAND()
+	ON_WM_COPYDATA()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -366,6 +368,15 @@ LRESULT CIncrementSystemBFDlg::OnMyClipMessage(WPARAM wParam, LPARAM lParam)
 	
 	timeStart = CTime::GetCurrentTime();
 	//m_MyIE.GetDocument();
+	return 1;
+}
+
+LRESULT CIncrementSystemBFDlg::OnMyIEMessage(WPARAM wParam, LPARAM lParam)
+{
+	CString str;
+	str = (LPSTR)lParam;
+
+	MessageBox(str);
 	return 1;
 }
 
@@ -837,4 +848,37 @@ void CIncrementSystemBFDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 
 	CDialog::OnSysCommand(nID, lParam);
+}
+
+BOOL CIncrementSystemBFDlg::OnCopyData(CWnd* pWnd, COPYDATASTRUCT* pCopyDataStruct) 
+{
+	// TODO: Add your message handler code here and/or call default
+	CString tempStr=(LPSTR)pCopyDataStruct->lpData;
+	// 获得实际长度的字符串
+	tempStr=tempStr.Left(pCopyDataStruct->cbData);
+	// 更新数据
+	UpdateData(FALSE);
+
+	if (!checkPhoneIsUnicom(tempStr.Left(11))){
+		
+		timeStart = CTime::GetCurrentTime();
+		return 0;	
+	}
+	
+	//CString logStr;
+	//logStr.Format("匹配号码段成功[%s]", tempStr.Left(11));
+	//CLogFile::WriteLog(logStr);
+	
+	szCharUrl.Format("%s%s", cUrls.QueryPhone, tempStr.Left(11));
+	//szCharUrl.Format("http://www.baidu.com/s?wd=%s", tempStr.Left(11));
+	CLogFile::WriteLog(szCharUrl);
+	
+	m_MyIE.Navigate(szCharUrl, NULL, NULL, NULL, NULL);
+
+	PostMessage(WM_SIZE,0,0);
+	ShowWindow(SW_RESTORE);
+	
+	timeStart = CTime::GetCurrentTime();
+
+	return CDialog::OnCopyData(pWnd, pCopyDataStruct);
 }

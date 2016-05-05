@@ -31,6 +31,7 @@ using namespace std;
 #define WM_MYMESSAGE         (WM_USER+100)
 #define WM_MYCLIPMESSAGE         (WM_MYMESSAGE+1)
 #define WM_MYCLICKMESSAGE	 (WM_MYMESSAGE+2)
+#define WM_MYIEMESSAGE		 (WM_MYMESSAGE+3)
 
 
 /////////////////////////////////////////////////////////////////////////////1860837383728
@@ -72,6 +73,7 @@ protected:
 	afx_msg LRESULT OnMyMessage(WPARAM w, LPARAM l);
 	afx_msg LRESULT OnMyClipMessage(WPARAM w, LPARAM l);
 	afx_msg LRESULT OnMyClickMessage(WPARAM w, LPARAM l);
+	afx_msg LRESULT OnMyIEMessage(WPARAM w, LPARAM l);
 	afx_msg void OnDestroy();
 	afx_msg void OnChangeCbChain(HWND hWndRemove, HWND hWndAfter);
 	afx_msg void OnDrawClipboard();
@@ -79,6 +81,7 @@ protected:
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
+	afx_msg BOOL OnCopyData(CWnd* pWnd, COPYDATASTRUCT* pCopyDataStruct);
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
