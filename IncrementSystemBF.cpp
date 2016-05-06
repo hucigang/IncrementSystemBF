@@ -79,7 +79,6 @@ CIncrementSystemBFApp::CIncrementSystemBFApp()
 {
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
-
 //	memset(&cSystem,0,sizeof(configSystem));
 //	memset(&cUrls,0,sizeof(configOfficeNetworkBF));
 	/*
@@ -167,9 +166,39 @@ BOOL CIncrementSystemBFApp::InitInstance()
 	CreateMutex(NULL,true,MY_GUID); 
 	if(GetLastError() == ERROR_ALREADY_EXISTS) 
 	{ 
-		AfxMessageBox(_T("应用程序不可以重复启动"),MB_OK | MB_APPLMODAL | MB_ICONSTOP); 
+		AfxMessageBox(_T("应用程序不可以重复启动!"),MB_OK | MB_APPLMODAL | MB_ICONSTOP); 
 		return(false); 
 	}
+
+	CString path;
+	path = ReturnPath();
+	CString updatePath;
+	updatePath.Format("%s\\%s", path, "Update.exe");
+	
+
+	PROCESS_INFORMATION piProcInfoGPS;
+    STARTUPINFO siStartupInfo;
+    SECURITY_ATTRIBUTES saProcess, saThread;
+    ZeroMemory( &siStartupInfo, sizeof(siStartupInfo) );
+    siStartupInfo.cb = sizeof(siStartupInfo);
+    saProcess.nLength = sizeof(saProcess);
+    saProcess.lpSecurityDescriptor = NULL;
+    saProcess.bInheritHandle = true;
+    saThread.nLength = sizeof(saThread);
+    saThread.lpSecurityDescriptor = NULL;
+    saThread.bInheritHandle = true;
+    CreateProcess( NULL, (LPTSTR)(LPSTR)(LPCTSTR)updatePath, &saProcess, &saThread, false, CREATE_DEFAULT_ERROR_MODE, NULL, NULL, &siStartupInfo,&piProcInfoGPS );
+
+	WaitForSingleObject(piProcInfoGPS.hProcess,INFINITE);
+  
+	DWORD   ExitCode;
+	GetExitCodeProcess(piProcInfoGPS.hProcess,&ExitCode);
+
+	if (ExitCode != 0){
+		AfxMessageBox(_T("自动更新失败，不能启动程序!!"),MB_OK | MB_APPLMODAL | MB_ICONSTOP); 
+		return (false);
+	}
+
 	AfxEnableControlContainer();
 
 	// Standard initialization

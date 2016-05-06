@@ -1,0 +1,52 @@
+# Microsoft Developer Studio Generated Dependency File, included by IncrementSystemBF.mak
+
+.\DHTMLEventSink.cpp : \
+	".\DHTMLEventSink.h"\
+	".\LogFile.h"\
+	
+
+.\IncrementSystemBF.cpp : \
+	"..\..\..\..\windows\system32\mshtml.tlb"\
+	".\IncrementSystemBF.h"\
+	".\IncrementSystemBFDlg.h"\
+	".\LogFile.h"\
+	".\webbrowser2.h"\
+	
+
+.\IncrementSystemBF.rc : \
+	".\res\icon1.ico"\
+	".\res\IncrementSystemBF.ico"\
+	".\res\IncrementSystemBF.rc2"\
+	
+
+.\IncrementSystemBFDlg.cpp : \
+	"..\..\..\..\windows\system32\mshtml.tlb"\
+	".\DHTMLEventSink.h"\
+	".\IncrementSystemBF.h"\
+	".\IncrementSystemBFDlg.h"\
+	".\LogFile.h"\
+	".\MyEventSink.h"\
+	".\webbrowser2.h"\
+	
+
+.\LogFile.cpp : \
+	".\LogFile.h"\
+	
+
+.\MyEventSink.cpp : \
+	"..\..\..\..\windows\system32\mshtml.tlb"\
+	".\IncrementSystemBF.h"\
+	".\IncrementSystemBFDlg.h"\
+	".\LogFile.h"\
+	".\MyEventSink.h"\
+	".\webbrowser2.h"\
+	
+
+.\StdAfx.cpp : \
+	"..\..\vc98\include\basetsd.h"\
+	".\StdAfx.h"\
+	
+
+.\webbrowser2.cpp : \
+	".\webbrowser2.h"\
+	
