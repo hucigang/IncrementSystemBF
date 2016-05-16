@@ -60,6 +60,7 @@ BEGIN_MESSAGE_MAP(CIncrementSystemBFDlg, CDialog)
 	ON_WM_SIZE()
 	ON_WM_SYSCOMMAND()
 	ON_WM_COPYDATA()
+	ON_WM_MENUSELECT()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -881,4 +882,12 @@ BOOL CIncrementSystemBFDlg::OnCopyData(CWnd* pWnd, COPYDATASTRUCT* pCopyDataStru
 	timeStart = CTime::GetCurrentTime();
 
 	return CDialog::OnCopyData(pWnd, pCopyDataStruct);
+}
+
+void CIncrementSystemBFDlg::OnMenuSelect(UINT nItemID, UINT nFlags, HMENU hSysMenu) 
+{
+	CDialog::OnMenuSelect(nItemID, nFlags, hSysMenu);
+	
+	// TODO: Add your message handler code here
+	
 }

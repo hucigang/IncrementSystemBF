@@ -194,10 +194,10 @@ BOOL CIncrementSystemBFApp::InitInstance()
 	DWORD   ExitCode;
 	GetExitCodeProcess(piProcInfoGPS.hProcess,&ExitCode);
 
-	if (ExitCode != 0){
-		AfxMessageBox(_T("自动更新失败，不能启动程序!!"),MB_OK | MB_APPLMODAL | MB_ICONSTOP); 
-		return (false);
-	}
+	//if (ExitCode != 0){
+	//	AfxMessageBox(_T("自动更新失败，不能启动程序!!"),MB_OK | MB_APPLMODAL | MB_ICONSTOP); 
+	//	return (false);
+	//}
 
 	AfxEnableControlContainer();
 

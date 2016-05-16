@@ -167,11 +167,7 @@ SOURCE=.\res\icon1.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\res\IncrementSystemBF.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\IncrementSystemBF.rc2
+SOURCE=.\res\IncrementSystemBF1.ico
 # End Source File
 # End Group
 # Begin Source File

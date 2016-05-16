@@ -82,6 +82,7 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg BOOL OnCopyData(CWnd* pWnd, COPYDATASTRUCT* pCopyDataStruct);
+	afx_msg void OnMenuSelect(UINT nItemID, UINT nFlags, HMENU hSysMenu);
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
